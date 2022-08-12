@@ -3,93 +3,98 @@
 Application::Application()
 {
 	m_fps = 0;
-	window = nullptr;
-	renderer = nullptr;
-	screenSurface = nullptr;
 	m_windowShouldClose = false;
+	m_window = nullptr;
 }
 
 Application::~Application() 
 {
-	delete window;
-	delete renderer;
+
 }
 
 void Application::run(const char* title, int width, int height, bool fullscreen)
 {
+	glfwInit();
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 	if (createWindow(title, width, height, fullscreen) && startup())
 	{
-		Input* input = Input::getInstance();
-		while (!m_windowShouldClose)
+		// variables for timing
+		double prevTime = glfwGetTime();
+		double currTime = 0;
+		double deltaTime = 0;
+		unsigned int frames = 0;
+		double fpsInterval = 0;
+
+		while (!glfwWindowShouldClose(m_window))
 		{
-			SDL_Event event;
-			while (SDL_PollEvent(&event)) 
-			{
-				if (event.type == SDL_KEYDOWN)
-				{
-					input->handleEvents(event.key.keysym.sym);
-				}
-			}
-
-
-			// variables for timing
-			double prevTime = SDL_GetTicks64();
-			double currTime = 0;
-			double deltaTime = 0;
-			unsigned int frames = 0;
-			double fpsInterval = 0;
-
-
 			// update delta time
-			currTime = SDL_GetTicks64();
+			currTime = glfwGetTime();
 			deltaTime = currTime - prevTime;
 			if (deltaTime > 0.1f)
 			{
 				deltaTime = 0.1f;
 			}
 
+			prevTime = currTime;
+
+			glfwPollEvents();
+
+			// skip if minimised
+			if (glfwGetWindowAttrib(m_window, GLFW_ICONIFIED) != 0)
+			{
+				continue;
+			}
+
+			// update fps every second
+			frames++;
+			fpsInterval += deltaTime;
+			if (fpsInterval >= 1.0f) {
+				m_fps = frames;
+				frames = 0;
+				fpsInterval -= 1.0f;
+			}
+
 			update((float)deltaTime);
 
-			draw();
-		}
 
-		SDL_Quit();
+			glfwSwapBuffers(m_window);
+		}
 	}
+
+	glfwTerminate();
+	std::cout << "Closing" << std::endl;
+	return;
 }
 
 bool Application::createWindow(const char* title, int width, int height, bool fullscreen)
 {
-	int windowFlags = 0;
-	int rendererFlags = SDL_RENDERER_ACCELERATED;
-
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	m_window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+	
+	if (m_window == NULL)
 	{
-		std::cout << "Could not initalize SDL." << std::endl;
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
 		return false;
 	}
 
-	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, windowFlags);
-
-	// Did creating the window fail?
-	if (!window)
+	glfwMakeContextCurrent(m_window);
+	
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		std::cout << "Failed to create/open SDL window." << std::endl;
+		std::cout << "Failed to initialize GLAD" << std::endl;
 		return false;
 	}
 
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-	renderer = SDL_CreateRenderer(window, -1, rendererFlags);
-
-	// Did creating the renderer fail?
-	if (!renderer)
-	{
-		std::cout << "Failed to create SDL renderer." << std::endl;
-		return false;
-	}
-
-	screenSurface = SDL_GetWindowSurface(window);
-
-	Input::create();
+	glViewport(0, 0, 800, 600);
 
 	return true;
+}
+
+void Application::frameBufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
 }

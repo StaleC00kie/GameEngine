@@ -1,5 +1,4 @@
 #pragma once
-#include "SDL2/SDL.h"
 #include <vector>
 #include <iostream>
 class Input
@@ -15,7 +14,7 @@ public:
 
 protected:
 
-	// just giving the Application class access to the Input singleton
+	// give the Application class access to the Input singleton
 	friend class Application;
 
 	static Input* m_instance;

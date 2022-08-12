@@ -1,7 +1,9 @@
 #pragma once
-#include "SDL2/SDL.h"
 #include <iostream>
 #include "Input.h"
+#include <glad/glad.h> 
+#include "GLFW/glfw3.h"
+
 class Application
 {
 public:
@@ -18,6 +20,9 @@ public:
 	virtual void shutdown() = 0;
 	virtual void update(float deltaTime) = 0;
 	virtual void draw() = 0;
+
+	void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
+
 
 	//void clearScreen();
 
@@ -41,8 +46,6 @@ protected:
 
 	unsigned int m_fps;
 
-	SDL_Window* window;
-	SDL_Surface* screenSurface;
-	SDL_Renderer* renderer;
+	GLFWwindow* m_window;
 };
 
