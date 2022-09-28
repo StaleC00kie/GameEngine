@@ -1,7 +1,9 @@
 #pragma once
 #include "Application.h"
-#include "Input.h"
 #include <iostream>
+
+class Input;
+
 class Application3D : public Application
 {
 public:
@@ -10,7 +12,9 @@ public:
 	void shutdown() override;
 	void update(float deltaTime) override;
 	void draw() override;
+	void processInput(GLFWwindow* window) override;
 
+protected:
 
 };
 

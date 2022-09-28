@@ -5,11 +5,15 @@ Application::Application()
 	m_fps = 0;
 	m_windowShouldClose = false;
 	m_window = nullptr;
+	m_input = nullptr;
+	m_shader = nullptr;
 }
 
 Application::~Application() 
 {
-
+	delete m_window;
+	delete m_input;
+	delete m_shader;
 }
 
 void Application::run(const char* title, int width, int height, bool fullscreen)
@@ -22,6 +26,8 @@ void Application::run(const char* title, int width, int height, bool fullscreen)
 
 	if (createWindow(title, width, height, fullscreen) && startup())
 	{
+		m_input = new Input(m_window);
+
 		// variables for timing
 		double prevTime = glfwGetTime();
 		double currTime = 0;
@@ -41,13 +47,15 @@ void Application::run(const char* title, int width, int height, bool fullscreen)
 
 			prevTime = currTime;
 
-			glfwPollEvents();
-
 			// skip if minimised
 			if (glfwGetWindowAttrib(m_window, GLFW_ICONIFIED) != 0)
 			{
 				continue;
 			}
+
+			processInput(m_window);
+			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
 
 			// update fps every second
 			frames++;
@@ -60,11 +68,13 @@ void Application::run(const char* title, int width, int height, bool fullscreen)
 
 			update((float)deltaTime);
 
+			draw();
 
+			glfwPollEvents();
 			glfwSwapBuffers(m_window);
 		}
 	}
-
+	shutdown();
 	glfwTerminate();
 	std::cout << "Closing" << std::endl;
 	return;

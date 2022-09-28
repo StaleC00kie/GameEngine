@@ -1,19 +1,25 @@
 #include "Input.h"
 
-Input* Input::m_instance = nullptr;
 
-Input::Input()
+std::vector<int> Input::m_pressedKeys;
+
+Input::Input(GLFWwindow* window)
 {
+	m_window = window;
 
+	glfwSetKeyCallback(window, callback);
 }
 
 Input::~Input()
 {
+	delete m_window;
 }
 
-bool Input::isKeyDown(int inputKeyID)
+bool Input::isKeyDown(int key)
 {
-	if (std::count(m_pressedKeys.begin(), m_pressedKeys.end(), inputKeyID))
+	auto it = std::find(m_pressedKeys.begin(), m_pressedKeys.end(), key);
+
+	if (it != m_pressedKeys.end())
 	{
 		return true;
 	}
@@ -21,20 +27,26 @@ bool Input::isKeyDown(int inputKeyID)
 	return false;
 }
 
-void Input::handleEvents(int inputKeyID)
+bool Input::isKeyHeldDown(int inputKeyID)
 {
-	m_pressedKeys.push_back(inputKeyID);
-
-	if (m_pressedKeys.size() > 0)
-	{
-		for (int i = 0; i < m_pressedKeys.size(); i++)
-		{
-			std::cout << m_pressedKeys[i] << std::endl;
-		}
-	}
+	return false;
 }
 
 void Input::clearInputs()
 {
-	m_pressedKeys.clear();
+
+}
+
+void Input::callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	auto it = std::find(m_pressedKeys.begin(), m_pressedKeys.end(), key);
+
+	if (action == GLFW_PRESS && it == m_pressedKeys.end())
+	{
+		m_pressedKeys.push_back(key);
+	}
+	else if (action == GLFW_RELEASE && it != m_pressedKeys.end())
+	{
+		m_pressedKeys.erase(it, m_pressedKeys.end());
+	}
 }

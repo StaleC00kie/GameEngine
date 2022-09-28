@@ -1,36 +1,26 @@
 #pragma once
 #include <vector>
 #include <iostream>
+#include "GLFW/glfw3.h"
+#include <algorithm>
 class Input
 {
 public:
-	static Input* getInstance() { return m_instance; }
 
-	bool isKeyDown(int inputKeyID);
+	Input(GLFWwindow* window);
+	~Input();
 
-	void handleEvents(int inputKeyID);
+	bool isKeyDown(int key);
+	bool isKeyHeldDown(int inputKeyID);
 
 	void clearInputs();
 
+	static void callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
 protected:
 
-	// give the Application class access to the Input singleton
-	friend class Application;
+	static std::vector<int> m_pressedKeys;
 
-	static Input* m_instance;
-
-	static void create() { m_instance = new Input(); }
-	static void destroy() { delete m_instance; }
-
-
-
-	std::vector<int> m_pressedKeys;
-
-
-private:
-
-	// constructor private for singleton
-	Input();
-	~Input();
+	GLFWwindow* m_window;
 };
 

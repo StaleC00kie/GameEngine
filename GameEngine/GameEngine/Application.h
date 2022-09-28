@@ -1,9 +1,9 @@
 #pragma once
 #include <iostream>
-#include "Input.h"
 #include <glad/glad.h> 
 #include "GLFW/glfw3.h"
-
+#include "Input.h"
+#include "Shader.h"
 class Application
 {
 public:
@@ -20,6 +20,8 @@ public:
 	virtual void shutdown() = 0;
 	virtual void update(float deltaTime) = 0;
 	virtual void draw() = 0;
+
+	virtual void processInput(GLFWwindow* window) = 0;
 
 	void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
 
@@ -47,5 +49,7 @@ protected:
 	unsigned int m_fps;
 
 	GLFWwindow* m_window;
+	Input* m_input;
+	Shader* m_shader;
 };
 

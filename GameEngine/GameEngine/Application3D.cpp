@@ -19,3 +19,8 @@ void Application3D::draw()
 {
 
 }
+
+void Application3D::processInput(GLFWwindow* window)
+{
+
+}
